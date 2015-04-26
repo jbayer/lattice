@@ -1,0 +1,17 @@
+general:
+  branches:
+    only:
+      - develop
+      - master
+machine:
+  timezone:
+    America/Los_Angeles
+  services: docker
+dependencies:
+  override:
+    - docker pull cloudfoundry/lattice-pipeline:latest
+test:
+  override:
+    - docker run -v $(pwd):/workspace cloudfoundry/lattice-pipeline /bin/bash -c pipeline/01_compilation/compile_ltc
+        environment:
+          PATH: $GOPATH/bin:$PATH
