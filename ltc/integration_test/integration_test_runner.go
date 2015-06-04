@@ -32,7 +32,7 @@ func init() {
 }
 
 type IntegrationTestRunner interface {
-	Run(timeout time.Duration, verbose, cliHelp bool)
+	Run(timeout time.Duration, verbose bool)
 }
 
 type integrationTestRunner struct {
@@ -57,14 +57,10 @@ func NewIntegrationTestRunner(config *config.Config, latticeCliHome string) Inte
 	}
 }
 
-func (runner *integrationTestRunner) Run(timeout time.Duration, verbose, cliHelp bool) {
+func (runner *integrationTestRunner) Run(timeout time.Duration, verbose bool) {
 	ginkgo_config.DefaultReporterConfig.Verbose = verbose
 	ginkgo_config.DefaultReporterConfig.SlowSpecThreshold = float64(20)
-	if cliHelp {
-		defineTheMainTests(runner)
-	} else {
-		defineTheGinkgoTests(runner, timeout)
-	}
+	defineTheGinkgoTests(runner, timeout)
 	RegisterFailHandler(Fail)
 	RunSpecs(runner.testingT, "Lattice Integration Tests")
 }
@@ -273,23 +269,4 @@ func makeGetRequestToRoute(route string) (*http.Response, error) {
 func expectExit(timeout time.Duration, session *gexec.Session) {
 	Eventually(session, timeout).Should(gexec.Exit(0))
 	Expect(string(session.Out.Contents())).To(HaveSuffix("\n"))
-}
-
-func defineTheMainTests(runner *integrationTestRunner) {
-	Describe("exit codes", func() {
-		It("exits non-zero when an unknown command is invoked", func() {
-			command := runner.command("unknownCommand")
-			session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
-			Expect(err).ToNot(HaveOccurred())
-			Eventually(session, 3*time.Second).Should(gbytes.Say("not a registered command"))
-			Eventually(session).Should(gexec.Exit(1))
-		})
-
-		It("exits non-zero when known command is invoked with invalid option", func() {
-			command := runner.command("status", "--badFlag")
-			session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
-			Expect(err).ToNot(HaveOccurred())
-			Eventually(session, 3*time.Second).Should(gexec.Exit(1))
-		})
-	})
 }
