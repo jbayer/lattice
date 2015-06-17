@@ -100,7 +100,7 @@ func GetCommandFlags(app *cli.App, command string) []string {
 	var flags []string
 	for _, flag := range cmd.Flags {
 		switch t := flag.(type) {
-		default:
+		// default:
 		case cli.StringSliceFlag:
 			flags = append(flags, t.Name)
 		case cli.IntFlag:

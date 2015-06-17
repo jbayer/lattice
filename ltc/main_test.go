@@ -98,7 +98,7 @@ var _ = Describe("LatticeCli Main", func() {
 			Expect(fakeServer.ReceivedRequests()).To(HaveLen(1))
 		})
 
-		It("exits non-zero when known command is invoked with invalid option", func() {
+		PIt("exits non-zero when known command is invoked with invalid option", func() {
 			command := exec.Command(ltcPath, "status", "--badFlag")
 			command.Env = []string{fmt.Sprintf("LATTICE_CLI_HOME=%s", homeFolder)}
 
